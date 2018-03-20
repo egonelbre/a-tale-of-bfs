@@ -11,7 +11,6 @@ import (
 	"runtime/debug"
 	"sort"
 	"strings"
-	"text/tabwriter"
 
 	"github.com/egonelbre/a-tale-of-bfs/graph"
 	"github.com/egonelbre/exp/qpc"
@@ -125,7 +124,7 @@ func Stats(timings []float64) string {
 		return fmt.Sprintf("%.2f", v*1000)
 	}
 
-	return fmt.Sprintf("%v\t%v±%v\t{%v .. %v}", ms(q), ms(mean), ms(variance), ms(min), ms(max))
+	return fmt.Sprintf("%v\t%v\t%v\t%v\t%v", ms(q), ms(mean), ms(variance), ms(min), ms(max))
 }
 
 func main() {
@@ -231,8 +230,11 @@ func main() {
 
 	rx := regexp.MustCompile(*run)
 
-	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
-	fmt.Fprintf(w, "dataset\tapproach\t50%%\tavg\t{min .. max}\n")
+	//w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
+	// defer w.Flush()
+
+	w := os.Stdout
+	fmt.Fprintf(w, "dataset\tapproach\tmed\tavg\tvar\tmin\tmax\n")
 	for _, dataset := range datasets {
 		fmt.Fprintln(os.Stderr, "# Dataset", dataset.Name)
 		for _, it := range iterators {
@@ -258,7 +260,6 @@ func main() {
 		}
 	}
 	fmt.Fprint(os.Stderr, "\n")
-	w.Flush()
 }
 
 func removeExt(name string) string {
