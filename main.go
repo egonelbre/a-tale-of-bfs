@@ -19,6 +19,19 @@ import (
 
 	s00_baseline "github.com/egonelbre/a-tale-of-bfs/00_baseline"
 	s01_reuse_level "github.com/egonelbre/a-tale-of-bfs/01_reuse_level"
+	s02_sort "github.com/egonelbre/a-tale-of-bfs/02_sort"
+	s03_inline_sort "github.com/egonelbre/a-tale-of-bfs/03_inline_sort"
+	s04_radix_sort "github.com/egonelbre/a-tale-of-bfs/04_radix_sort"
+	s05_lift_level "github.com/egonelbre/a-tale-of-bfs/05_lift_level"
+
+	s06_ordering "github.com/egonelbre/a-tale-of-bfs/06_ordering"
+	s07_fused "github.com/egonelbre/a-tale-of-bfs/07_fused"
+	s07_fused_if "github.com/egonelbre/a-tale-of-bfs/07_fused_if"
+	s08_cuckoo "github.com/egonelbre/a-tale-of-bfs/08_cuckoo"
+
+	s09_unroll_4 "github.com/egonelbre/a-tale-of-bfs/09_unroll_4"
+	s09_unroll_8 "github.com/egonelbre/a-tale-of-bfs/09_unroll_8"
+	s09_unroll_8_4 "github.com/egonelbre/a-tale-of-bfs/09_unroll_8_4"
 )
 
 var (
@@ -139,9 +152,23 @@ func main() {
 	iterators := []struct {
 		Name    string
 		Iterate IterateFn
+		Skip    bool
 	}{
 		{"baseline", s00_baseline.BreadthFirst},
 		{"reuse level", s01_reuse_level.BreadthFirst},
+		{"sort", s02_sort.BreadthFirst},
+		{"inline sort", s03_inline_sort.BreadthFirst},
+		{"radix sort", s04_radix_sort.BreadthFirst},
+		{"lift level", s05_lift_level.BreadthFirst},
+
+		{"ordering", s06_ordering.BreadthFirst},
+		{"fused", s07_fused.BreadthFirst},
+		{"fused if", s07_fused_if.BreadthFirst},
+		{"cuckoo", s08_cuckoo.BreadthFirst, true},
+
+		{"unroll 4", s09_unroll_4.BreadthFirst},
+		{"unroll 8", s09_unroll_8.BreadthFirst},
+		{"unroll 8 4", s09_unroll_8_4.BreadthFirst},
 	}
 
 	for _, it := range iterators {
@@ -153,6 +180,9 @@ func main() {
 	for _, dataset := range datasets {
 		fmt.Fprintln(os.Stderr, "# Dataset", dataset.Name)
 		for _, it := range iterators {
+			if it.Skip {
+				continue
+			}
 			fmt.Fprint(os.Stderr, "  > ", it.Name, "\t")
 			if *cold {
 				EmptyRun(dataset.Graph, SOURCE, it.Iterate)

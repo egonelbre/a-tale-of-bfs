@@ -1,6 +1,6 @@
 package graph
 
-type Node uint32
+type Node = uint32
 
 type Graph struct {
 	List []Node
