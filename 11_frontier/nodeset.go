@@ -1,6 +1,10 @@
 package search
 
-import "github.com/egonelbre/a-tale-of-bfs/graph"
+import (
+	"sync/atomic"
+
+	"github.com/egonelbre/a-tale-of-bfs/graph"
+)
 
 const (
 	bucket_bits = 5
@@ -20,12 +24,16 @@ func (set NodeSet) Offset(node graph.Node) (bucket, bit uint32) {
 	return bucket, bit
 }
 
-func (set NodeSet) Add(node graph.Node) {
+func (set NodeSet) TryAdd(node graph.Node) bool {
 	bucket, bit := set.Offset(node)
-	set[bucket] |= bit
-}
-
-func (set NodeSet) Contains(node graph.Node) bool {
-	bucket, bit := set.Offset(node)
-	return set[bucket]&bit != 0
+	addr := &set[bucket]
+retry:
+	old := atomic.LoadUint32(addr)
+	if old&bit != 0 {
+		return false
+	}
+	if atomic.CompareAndSwapUint32(addr, old, old|bit) {
+		return true
+	}
+	goto retry
 }

@@ -8,33 +8,31 @@ const (
 	bucket_mask = bucket_size - 1
 )
 
-type NodeSet struct {
-	Data []uint32
-}
+type NodeSet []uint32
 
 func NewNodeSet(size int) NodeSet {
-	return NodeSet{make([]uint32, (size+31)/32)}
+	return NodeSet(make([]uint32, (size+31)/32))
 }
 
-func (set *NodeSet) Offset(node graph.Node) (bucket, bit uint32) {
+func (set NodeSet) Offset(node graph.Node) (bucket, bit uint32) {
 	bucket = uint32(node >> bucket_bits)
 	bit = uint32(1 << (node & bucket_mask))
 	return bucket, bit
 }
 
-func (set *NodeSet) Add(node graph.Node) {
+func (set NodeSet) Add(node graph.Node) {
 	bucket, bit := set.Offset(node)
-	set.Data[bucket] |= bit
+	set[bucket] |= bit
 }
 
-func (set *NodeSet) Contains(node graph.Node) bool {
+func (set NodeSet) Contains(node graph.Node) bool {
 	bucket, bit := set.Offset(node)
-	return set.Data[bucket]&bit != 0
+	return set[bucket]&bit != 0
 }
 
-func (set *NodeSet) TryAdd(node graph.Node) bool {
+func (set NodeSet) TryAdd(node graph.Node) bool {
 	bucket, bit := set.Offset(node)
-	empty := set.Data[bucket]&bit == 0
-	set.Data[bucket] |= bit
+	empty := set[bucket]&bit == 0
+	set[bucket] |= bit
 	return empty
 }

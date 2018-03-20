@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"runtime"
 	"runtime/debug"
 	"sort"
@@ -32,14 +33,35 @@ import (
 	s09_unroll_4 "github.com/egonelbre/a-tale-of-bfs/09_unroll_4"
 	s09_unroll_8 "github.com/egonelbre/a-tale-of-bfs/09_unroll_8"
 	s09_unroll_8_4 "github.com/egonelbre/a-tale-of-bfs/09_unroll_8_4"
+
+	s10_parallel "github.com/egonelbre/a-tale-of-bfs/10_parallel"
+	s11_frontier "github.com/egonelbre/a-tale-of-bfs/11_frontier"
+	s12_almost "github.com/egonelbre/a-tale-of-bfs/12_almost"
+	s13_marking "github.com/egonelbre/a-tale-of-bfs/13_marking"
+
+	s14_early_2 "github.com/egonelbre/a-tale-of-bfs/14_early_2"
+	s14_early_3 "github.com/egonelbre/a-tale-of-bfs/14_early_3"
+	s14_early_4 "github.com/egonelbre/a-tale-of-bfs/14_early_4"
+	s14_early_r "github.com/egonelbre/a-tale-of-bfs/14_early_r"
+
+	s15_worker "github.com/egonelbre/a-tale-of-bfs/15_worker"
+	s16_busy "github.com/egonelbre/a-tale-of-bfs/16_busy"
 )
 
 var (
 	cold = flag.Bool("cold", false, "also include cold run")
-	N    = flag.Int("N", 1, "benchmark iterations")
+	run  = flag.String("run", "", "filter approaches")
+	N    = flag.Int("N", 10, "benchmark iterations")
 )
 
 type IterateFn func(g *graph.Graph, source graph.Node, levels []int)
+type IterateFnParallel func(g *graph.Graph, source graph.Node, levels []int, procs int)
+
+func IterateParallel(procs int, iterate IterateFnParallel) IterateFn {
+	return func(g *graph.Graph, source graph.Node, levels []int) {
+		iterate(g, source, levels, procs)
+	}
+}
 
 func EmptyRun(g *graph.Graph, source graph.Node, iterate IterateFn) {
 	levels := make([]int, g.Order())
@@ -74,7 +96,7 @@ func Benchmark(g *graph.Graph, source graph.Node, iterate IterateFn, N int) []fl
 	return timings
 }
 
-func Test(g *graph.Graph, source graph.Node, iterate IterateFn, expected []int) {
+func Test(g *graph.Graph, name string, source graph.Node, iterate IterateFn, expected []int) {
 	levels := make([]int, g.Order())
 	iterate(g, source, levels)
 
@@ -87,7 +109,7 @@ func Test(g *graph.Graph, source graph.Node, iterate IterateFn, expected []int) 
 	}
 
 	if !reflect.DeepEqual(levelCounts, expected) {
-		fmt.Fprintln(os.Stderr, "Invalid result: ", levelCounts, expected)
+		fmt.Fprintln(os.Stderr, "Invalid ", name, "got", levelCounts, "exp", expected)
 	}
 }
 
@@ -103,7 +125,7 @@ func Stats(timings []float64) string {
 		return fmt.Sprintf("%.2f", v*1000)
 	}
 
-	return fmt.Sprintf("%v\t%v±%v\t{%v..%v}", ms(q), ms(mean), ms(variance), ms(min), ms(max))
+	return fmt.Sprintf("%v\t%v±%v\t{%v .. %v}", ms(q), ms(mean), ms(variance), ms(min), ms(max))
 }
 
 func main() {
@@ -149,45 +171,87 @@ func main() {
 		os.Exit(1)
 	}
 
+	max := runtime.GOMAXPROCS(-1)
+	maxs := fmt.Sprintf("%dx", max)
+
 	iterators := []struct {
 		Name    string
 		Iterate IterateFn
 		Skip    bool
 	}{
-		{"baseline", s00_baseline.BreadthFirst},
-		{"reuse level", s01_reuse_level.BreadthFirst},
-		{"sort", s02_sort.BreadthFirst},
-		{"inline sort", s03_inline_sort.BreadthFirst},
-		{"radix sort", s04_radix_sort.BreadthFirst},
-		{"lift level", s05_lift_level.BreadthFirst},
+		{"baseline", s00_baseline.BreadthFirst, false},
+		{"reuse level", s01_reuse_level.BreadthFirst, false},
+		{"sort", s02_sort.BreadthFirst, false},
+		{"inline sort", s03_inline_sort.BreadthFirst, false},
+		{"radix sort", s04_radix_sort.BreadthFirst, false},
+		{"lift level", s05_lift_level.BreadthFirst, false},
 
-		{"ordering", s06_ordering.BreadthFirst},
-		{"fused", s07_fused.BreadthFirst},
-		{"fused if", s07_fused_if.BreadthFirst},
+		{"ordering", s06_ordering.BreadthFirst, false},
+		{"fused", s07_fused.BreadthFirst, false},
+		{"fused if", s07_fused_if.BreadthFirst, false},
 		{"cuckoo", s08_cuckoo.BreadthFirst, true},
 
-		{"unroll 4", s09_unroll_4.BreadthFirst},
-		{"unroll 8", s09_unroll_8.BreadthFirst},
-		{"unroll 8 4", s09_unroll_8_4.BreadthFirst},
+		{"unroll 4", s09_unroll_4.BreadthFirst, false},
+		{"unroll 8", s09_unroll_8.BreadthFirst, false},
+		{"unroll 8 4", s09_unroll_8_4.BreadthFirst, false},
+
+		{"parallel", s10_parallel.BreadthFirst, true},
+
+		{"frontier 4x", IterateParallel(4, s11_frontier.BreadthFirst), false},
+		{"frontier " + maxs, IterateParallel(max, s11_frontier.BreadthFirst), false},
+
+		{"almost 4x", IterateParallel(4, s12_almost.BreadthFirst), false},
+		{"almost " + maxs, IterateParallel(max, s12_almost.BreadthFirst), false},
+
+		{"marking 4x", IterateParallel(4, s13_marking.BreadthFirst), false},
+		{"marking " + maxs, IterateParallel(max, s13_marking.BreadthFirst), false},
+
+		{"early2 4x", IterateParallel(4, s14_early_2.BreadthFirst), false},
+		{"early2 " + maxs, IterateParallel(max, s14_early_2.BreadthFirst), false},
+
+		{"early3 4x", IterateParallel(4, s14_early_3.BreadthFirst), false},
+		{"early3 " + maxs, IterateParallel(max, s14_early_3.BreadthFirst), false},
+
+		{"early4 4x", IterateParallel(4, s14_early_4.BreadthFirst), false},
+		{"early4 " + maxs, IterateParallel(max, s14_early_4.BreadthFirst), false},
+
+		{"earlyR 4x", IterateParallel(4, s14_early_r.BreadthFirst), false},
+		{"earlyR " + maxs, IterateParallel(max, s14_early_r.BreadthFirst), false},
+
+		{"worker 4x", IterateParallel(4, s15_worker.BreadthFirst), false},
+		{"worker " + maxs, IterateParallel(max, s15_worker.BreadthFirst), false},
+
+		{"busy 4x", IterateParallel(4, s16_busy.BreadthFirst), false},
+		{"busy " + maxs, IterateParallel(max, s16_busy.BreadthFirst), false},
 	}
 
 	for _, it := range iterators {
-		fmt.Fprintln(os.Stderr, "# Testing ", it.Name)
-		Test(g10k, SOURCE, it.Iterate, []int{490000, 1, 55, 2416, 7528})
+		Test(g10k, it.Name, SOURCE, it.Iterate, []int{490000, 1, 55, 2416, 7528})
 	}
 
+	rx := regexp.MustCompile(*run)
+
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
+	fmt.Fprintf(w, "dataset\tapproach\t50%%\tavg\t{min .. max}\n")
 	for _, dataset := range datasets {
 		fmt.Fprintln(os.Stderr, "# Dataset", dataset.Name)
 		for _, it := range iterators {
-			if it.Skip {
+			if *run != "" && !rx.MatchString(it.Name) {
 				continue
 			}
+
 			fmt.Fprint(os.Stderr, "  > ", it.Name, "\t")
+
 			if *cold {
 				EmptyRun(dataset.Graph, SOURCE, it.Iterate)
 			}
-			timings := Benchmark(dataset.Graph, SOURCE, it.Iterate, *N)
+
+			n := *N
+			if it.Skip {
+				n = 1
+			}
+
+			timings := Benchmark(dataset.Graph, SOURCE, it.Iterate, n)
 			stats := Stats(timings)
 			fmt.Fprintln(os.Stderr, stats)
 			fmt.Fprintf(w, "%v\t%v\t%v\n", dataset.Name, it.Name, stats)
