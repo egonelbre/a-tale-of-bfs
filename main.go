@@ -11,6 +11,7 @@ import (
 	"runtime/debug"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/egonelbre/a-tale-of-bfs/graph"
 	"github.com/egonelbre/exp/qpc"
@@ -34,6 +35,7 @@ import (
 	s09_unroll_8_4 "github.com/egonelbre/a-tale-of-bfs/09_unroll_8_4"
 
 	s10_parallel "github.com/egonelbre/a-tale-of-bfs/10_parallel"
+	s10_parchan "github.com/egonelbre/a-tale-of-bfs/10_parchan"
 	s11_frontier "github.com/egonelbre/a-tale-of-bfs/11_frontier"
 	s12_almost "github.com/egonelbre/a-tale-of-bfs/12_almost"
 	s13_marking "github.com/egonelbre/a-tale-of-bfs/13_marking"
@@ -97,7 +99,19 @@ func Benchmark(g *graph.Graph, source graph.Node, iterate IterateFn, N int) []fl
 
 func Test(g *graph.Graph, name string, source graph.Node, iterate IterateFn, expected []int) {
 	levels := make([]int, g.Order())
-	iterate(g, source, levels)
+
+	done := make(chan struct{})
+	go func() {
+		iterate(g, source, levels)
+		done <- struct{}{}
+	}()
+
+	select {
+	case <-done:
+	case <-time.After(time.Second):
+		fmt.Fprintln(os.Stderr, "Locked ", name)
+		return
+	}
 
 	levelCounts := []int{}
 	for _, level := range levels {
@@ -195,6 +209,8 @@ func main() {
 		{"unroll 8 4", s09_unroll_8_4.BreadthFirst, false},
 
 		{"parallel", s10_parallel.BreadthFirst, true},
+		{"parchan 4x", IterateParallel(4, s10_parchan.BreadthFirst), false},
+		{"parchan " + maxs, IterateParallel(max, s10_parchan.BreadthFirst), false},
 
 		{"frontier 4x", IterateParallel(4, s11_frontier.BreadthFirst), false},
 		{"frontier " + maxs, IterateParallel(max, s11_frontier.BreadthFirst), false},

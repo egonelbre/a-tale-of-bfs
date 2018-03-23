@@ -8,7 +8,7 @@ import (
 	"github.com/shawnsmithdev/zermelo/zuint32"
 )
 
-func processBlock(ch chan<- []graph.Node, g *graph.Graph, block []graph.Node, visited *NodeSet) {
+func process(ch chan<- []graph.Node, g *graph.Graph, block []graph.Node, visited *NodeSet) {
 	for _, v := range block {
 		neighbors := make([]graph.Node, 0)
 		for _, neighbor := range g.Neighbors(v) {
@@ -56,7 +56,7 @@ func BreadthFirst(g *graph.Graph, source graph.Node, level []int) {
 		wg.Add(len(workblocks))
 		for _, block := range workblocks {
 			go func(block []graph.Node) {
-				processBlock(ch, g, block, &visited)
+				process(ch, g, block, &visited)
 				wg.Done()
 			}(block)
 		}
