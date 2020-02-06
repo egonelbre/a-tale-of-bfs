@@ -22,6 +22,14 @@ github.com/gonum/matrix v0.0.0-20181209220409-c518dec07be9/go.mod h1:0EXg4mc1CNP
 github.com/gonum/stat v0.0.0-20181125101827-41a0da705a5b h1:fbskpz/cPqWH8VqkQ7LJghFkl2KPAiIFUHrTJ2O3RGk=
 github.com/gonum/stat v0.0.0-20181125101827-41a0da705a5b/go.mod h1:Z4GIJBJO3Wa4gD4vbwQxXXZ+WHmW6E9ixmNrwvs0iZs=
 github.com/jung-kurt/gofpdf v1.0.3-0.20190309125859-24315acbbda5/go.mod h1:7Id9E/uU8ce6rXgefFLlgrJj/GYY22cpxn+r32jIOes=
+github.com/loov/csvcolumn v0.0.0-20200105141458-28902ec2389c h1:FeWdFjpm6+N+Utmd7tB3mVkDmtwa1drQy1jlFbzWYpY=
+github.com/loov/csvcolumn v0.0.0-20200105141458-28902ec2389c/go.mod h1:auQUQ1pduNvwT/wIxb7jGPuNyjqBBqhmkdXlnEJsekE=
+github.com/loov/csvcolumn v0.0.0-20200205102021-4bdc5d8d53d6 h1:Fx4wOrJBdw5R6l6QuPOX83R0xfTkj6jNh52WDt7MKKI=
+github.com/loov/csvcolumn v0.0.0-20200205102021-4bdc5d8d53d6/go.mod h1:auQUQ1pduNvwT/wIxb7jGPuNyjqBBqhmkdXlnEJsekE=
+github.com/loov/diagram v0.0.0-20200122154408-84ad7d84ad82 h1:WUMAclKei2sEhZzPZ8NGlCQPSOa8hdvuVb/Z18CYKEI=
+github.com/loov/diagram v0.0.0-20200122154408-84ad7d84ad82/go.mod h1:PsxpRCbuqmmAESOKmphOvBz4q6FLAFFPNdlXb6mcxN8=
+github.com/loov/diagram v0.0.0-20200205133358-3c00c8e48506 h1:uYsds/zvvTeY1+2Ne2NWDuSPQf+UAbaeJhHgHpU65/8=
+github.com/loov/diagram v0.0.0-20200205133358-3c00c8e48506/go.mod h1:PsxpRCbuqmmAESOKmphOvBz4q6FLAFFPNdlXb6mcxN8=
 github.com/montanaflynn/stats v0.5.0 h1:2EkzeTSqBB4V4bJwWrt5gIIrZmpJBcoIRGS2kWLgzmk=
 github.com/montanaflynn/stats v0.5.0/go.mod h1:wL8QJuTMNUDYhXwkmfOly8iTdp5TEcJFWZD2D7SIkUc=
 github.com/shawnsmithdev/zermelo v0.0.0-20190712023933-72892ed011e9 h1:QtguuPQV4FoI/CE63SfH0tYTOM4FTPWMYivPON3FVS0=

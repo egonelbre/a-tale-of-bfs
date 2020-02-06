@@ -1,4 +1,4 @@
-dataset	approach	med	avg	stdev min	max
+dataset	approach	med	avg	stdev	min	max
 friendster	baseline	66056.44	72684.60	16391.31	54459.00	92891.77
 friendster	reuse level	118742.89	118773.26	667.13	117953.46	119586.15
 friendster	sort	54892.10	53577.01	2907.00	49220.80	55201.89
