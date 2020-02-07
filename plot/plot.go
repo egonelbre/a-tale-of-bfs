@@ -336,16 +336,18 @@ func Plot(filename string, lefttitle, righttitle string, lines ...Line) {
 		left.Min.X = pleft(line.Left.Median)
 		right.Max.X = pright(line.Right.Median)
 
+		y := center.Max.Y - pad
+
 		base.Rect(left, &diagram.Style{Fill: black})
 		text.Text(
 			fmt.Sprintf("%.2fs", line.Left.Median/1000),
 			diagram.Point{
 				X: left.Max.X + pad,
-				Y: (left.Min.Y + left.Max.Y) / 2,
+				Y: y,
 			}, &diagram.Style{
 				Fill:   black,
 				Size:   textheight * 0.9,
-				Origin: diagram.Point{-1, 0},
+				Origin: diagram.Point{-1, 1},
 			})
 
 		base.Rect(right, &diagram.Style{Fill: black})
@@ -353,18 +355,21 @@ func Plot(filename string, lefttitle, righttitle string, lines ...Line) {
 			fmt.Sprintf("%.2fs", line.Right.Median/1000),
 			diagram.Point{
 				X: right.Min.X - pad,
-				Y: (right.Min.Y + right.Max.Y) / 2,
+				Y: y,
 			}, &diagram.Style{
 				Fill:   black,
 				Size:   textheight * 0.9,
-				Origin: diagram.Point{1, 0},
+				Origin: diagram.Point{1, 1},
 			})
 
-		c := center.UnitLocation(diagram.Point{0, 0})
-		text.Text(line.Name, c, &diagram.Style{
-			Fill: black,
-			Size: textheight,
-			Font: "bold",
+		text.Text(line.Name, diagram.Point{
+			X: (center.Min.X + center.Max.X) / 2,
+			Y: y,
+		}, &diagram.Style{
+			Fill:   black,
+			Size:   textheight,
+			Font:   "bold",
+			Origin: diagram.Point{0, 1},
 		})
 
 		left = left.Offset(diagram.Point{Y: height + pad})
