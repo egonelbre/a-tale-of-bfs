@@ -1,0 +1,1 @@
+ls -1 *.svg | xargs -I "{}" "c:\Program Files\Inkscape\inkscape.exe" -e "png/{}.png" "{}"
