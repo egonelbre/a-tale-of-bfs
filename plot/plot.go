@@ -226,7 +226,7 @@ func main() {
 func Plot(filename string, lefttitle, righttitle string, lines ...Line) {
 	const (
 		head       = 20
-		sidewidth  = 300
+		sidewidth  = 350
 		height     = 16
 		textheight = 16
 		textwidth  = textheight * 12
@@ -264,7 +264,7 @@ func Plot(filename string, lefttitle, righttitle string, lines ...Line) {
 	right.Min.X = xr
 	right.Max.Y = height
 
-	black := color.Gray16{0x4444}
+	black := color.Gray16{0}
 	//white := color.Gray16{0xffff}
 
 	pleft := func(v float64) float64 {
@@ -276,13 +276,13 @@ func Plot(filename string, lefttitle, righttitle string, lines ...Line) {
 
 	text.Text(lefttitle, diagram.Point{xl, -pad},
 		&diagram.Style{
-			Fill:   color.Gray16{0x4444},
+			Fill:   black,
 			Size:   14,
 			Origin: diagram.Point{0, -1},
 		})
 	text.Text(righttitle, diagram.Point{xr, -pad},
 		&diagram.Style{
-			Fill:   color.Gray16{0x4444},
+			Fill:   black,
 			Size:   14,
 			Origin: diagram.Point{0, -1},
 		})
@@ -293,14 +293,14 @@ func Plot(filename string, lefttitle, righttitle string, lines ...Line) {
 			x, head,
 			x, grid.Bounds().Size().Y,
 		), &diagram.Style{
-			Stroke: color.Gray16{0x8888},
+			Stroke: color.Gray16{0x4444},
 			Size:   1,
 		})
 
 		grid.Text(fmt.Sprintf("%ds", k),
 			diagram.Point{x, head},
 			&diagram.Style{
-				Fill:   color.Gray16{0x4444},
+				Fill:   black,
 				Size:   14,
 				Origin: diagram.Point{0, 1},
 			})
@@ -311,14 +311,14 @@ func Plot(filename string, lefttitle, righttitle string, lines ...Line) {
 			x, head,
 			x, grid.Bounds().Size().Y,
 		), &diagram.Style{
-			Stroke: color.Gray16{0x8888},
+			Stroke: color.Gray16{0x4444},
 			Size:   1,
 		})
 
 		grid.Text(fmt.Sprintf("%ds", k),
 			diagram.Point{x, head},
 			&diagram.Style{
-				Fill:   color.Gray16{0x4444},
+				Fill:   black,
 				Size:   14,
 				Origin: diagram.Point{0, 1},
 			})
